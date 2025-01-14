@@ -1,8 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Layout from "./pages/Layout";
-import Contact from "./pages/Contact";
-import Home from "./pages/Home";
+import Report from "./pages/Report";
+import Home from "./pages/Register";
 import Printcheque from "./pages/printcheque";
 
 export default function App() {
@@ -12,7 +12,7 @@ export default function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="printcheque" element={<Printcheque />} />
-          <Route path="contact" element={<Contact />} />
+          <Route path="Report" element={<Report />} />
         </Route>
       </Routes>
     </BrowserRouter>
