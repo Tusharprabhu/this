@@ -10,7 +10,7 @@ const Items = require("./models/Items");
 
 app.use(
     cors({
-      origin: "*",  // Allow both ports
+      origin: "*",
       credentials:true,
     })
   );
@@ -23,7 +23,12 @@ mongoose.connect('mongodb+srv://admin:admin@cluster0.sbw1w.mongodb.net/?retryWri
 app.get("/", async (req, res) => {
     Items.find().then(user => res.json(user))
     .catch(err => res.status(400).json('Error: ' + err));
-    
+});
+
+app.get("/transactions/:id", async (req, res) => {
+    const { id } = req.params;
+    Items.findById(id).then(transaction => res.json(transaction))
+    .catch(err => res.status(400).json('Error: ' + err));
 });
 
 app.listen(PORT, () => {

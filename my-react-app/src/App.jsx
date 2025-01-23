@@ -4,6 +4,7 @@ import Layout from "./pages/Layout";
 import Report from "./pages/Report";
 import Home from "./pages/Register";
 import Printcheque from "./pages/printcheque";
+import NameReport from "./pages/namereport";
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
           <Route index element={<Home />} />
           <Route path="printcheque" element={<Printcheque />} />
           <Route path="Report" element={<Report />} />
+          <Route path="namereport/:name" element={<NameReport />} />
         </Route>
       </Routes>
     </BrowserRouter>
