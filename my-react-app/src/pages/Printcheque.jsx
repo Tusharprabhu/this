@@ -175,7 +175,6 @@ const Printcheque = () => {
       <div className="flex flex-col items-center">
         <button
           onClick={handlePrint}
-          
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-52 mb-4"
         >
           Preview Cheque
@@ -191,24 +190,30 @@ const Printcheque = () => {
 
       {/* Image at Bottom */}
       <div className="relative mt-8 mx-auto" id="img-container">
-        {console.log("../images/" + getBankImage())}
         <img
           src={getBankImage()}
           alt={`${selectedbank || "Default"} Cheque`}
           className="rounded-lg shadow-lg h-[612px] w-[792px]"
           id="image"
         />
-        <div className="absolute top-4 left-4 tracking-[8px] translate-x-[34.3rem] translate-y-[17px] z-20">
-          <p>{printedName}</p>
+        {/* Date field */}
+        <div className="absolute top-[56px] right-[28px] tracking-[4.5px] z-20">
+          <p className="font-semibold text-xl uppercase">
+            {new Date().toLocaleDateString('en-IN', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric'
+            }).replace(/\//g, ' ')}
+          </p>
         </div>
-        <div className="absolute translate-x-[5.3rem] translate-y-[19px]">
-          <p>{printedName}</p>
+        <div className="absolute top-[245px] right-[620px] z-20">
+          <p className="font-extrabold text-xl uppercase">{printedName}</p>
         </div>
-        <div className="absolute translate-x-[7.5rem] translate-y-[23px]">
-          <p>{Printedbank}</p>
+        <div className="absolute top-[290px] right-[620px] z-20">
+          <p className="font-extrabold text-xl uppercase">{Printedbank}</p>
         </div>
-        <div className="absolute translate-x-[34.5rem] translate-y-[25px]">
-          <p>{Printedbank}</p>
+        <div className="absolute top-[335px] right-[620px] z-20">
+          <p className="font-extrabold text-xl uppercase">{Printedbank}</p>
         </div>
       </div>
     </div>
