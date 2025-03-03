@@ -12,6 +12,12 @@ const Printcheque = () => {
   const [printedName, setPrintedName] = useState("");
   const [Printedbank, setPrintedbank] = useState("");
   const [customName, setCustomName] = useState(true);
+  // Add this state at the top with your other state variables
+  const [amount, setAmount] = useState({
+    value: 0,
+    formatted: "0.00",
+    inWords: "Zero rupees only"
+  });
 
   const BANK_IMAGES = {
     ICICI: ICICIIMG,
@@ -22,7 +28,7 @@ const Printcheque = () => {
     default: ICICIIMG,
   };
 
-  useEffect(() => {
+  useEffect(() => { 
     axios
       .get("http://localhost:5000/")
       .then((response) => {
@@ -55,55 +61,148 @@ const Printcheque = () => {
     setCustomName(false);
   };
 
-  const printContainer = () => {
-    const printContent = document.getElementById("img-container").innerHTML;
+  // Add this function before your render function
+  const convertNumberToWords = (num) => {
+    const single = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
+      "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"];
+    const tens = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
+    
+    if (num === 0) return "zero rupees only";
+    
+    // Function to convert numbers less than 1000
+    const convertLessThanOneThousand = (num) => {
+      if (num < 20) {
+        return single[num];
+      }
+      const ten = Math.floor(num / 10);
+      const unit = num % 10;
+      return tens[ten] + (unit !== 0 ? " " + single[unit] : "");
+    };
+    
+    // Main conversion function
+    const convert = (num) => {
+      // For numbers less than 100
+      if (num < 100) {
+      return convertLessThanOneThousand(num);
+      }
+      // For numbers 100-999, explicitly mention hundreds
+      if (num < 1000) {
+      const hundred = Math.floor(num / 100);
+      const remainder = num % 100;
+      return single[hundred] + " hundred" + (remainder !== 0 ? " and " + convertLessThanOneThousand(remainder) : "");
+      }
+      if (num < 100000) { // less than 1 lakh
+      return convertLessThanOneThousand(Math.floor(num / 1000)) + " thousand " + 
+           (num % 1000 !== 0 ? convert(num % 1000) : "");
+      }
+      if (num < 10000000) { // less than 1 crore
+      return convertLessThanOneThousand(Math.floor(num / 100000)) + " lakh " + 
+           (num % 100000 !== 0 ? convert(num % 100000) : "");
+      }
+      return convertLessThanOneThousand(Math.floor(num / 10000000)) + " crore " + 
+         (num % 10000000 !== 0 ? convert(num % 10000000) : "");
+    };
+    // Get the whole number part
+    const wholeNum = Math.floor(num);
+    // Get the decimal part (paise)
+    const decimal = Math.round((num - wholeNum) * 100);
+    
+    let result = convert(wholeNum) + " rupees";
+    if (decimal > 0) {
+      result += " and " + convert(decimal) + " paise";
+    }
+    
+    return result + " only";
+  };
 
+  const printContainer = () => {
     // Create a new window for printing
     const printWindow = window.open("", "_blank");
     printWindow.document.open();
     printWindow.document.write(`
       <html>
-        <head>
-          <title>Print Cheque</title>
-          <style>
-            body {
-              margin: 0;
-              padding: 0;
-            }
-            .print-container {
-              position: relative;
-              width: 100%;
-              height: 100%;
-            }
-            img {
-              width: 100%;
-              height: auto;
-            }
-            .absolute {
-              position: absolute;
-            }
-            .tracking-\\[8px\\] {
-              letter-spacing: 8px;
-            }
-            /* Preserve all the positioning from your original styling */
-            .translate-x-\\[34\\.3rem\\] { transform: translateX(34.3rem); }
-            .translate-y-\\[17px\\] { transform: translateY(17px); }
-            .translate-x-\\[5\\.3rem\\] { transform: translateX(5.3rem); }
-            .translate-y-\\[19px\\] { transform: translateY(19px); }
-            .translate-x-\\[7\\.5rem\\] { transform: translateX(7.5rem); }
-            .translate-y-\\[23px\\] { transform: translateY(23px); }
-            .translate-x-\\[34\\.5rem\\] { transform: translateX(34.5rem); }
-            .translate-y-\\[25px\\] { transform: translateY(25px); }
-            .z-20 { z-index: 20; }
-            .top-4 { top: 1rem; }
-            .left-4 { left: 1rem; }
-          </style>
-        </head>
-        <body>
-          <div class="print-container">
-            ${printContent}
-          </div>
-        </body>
+      <head>
+      <title>Print Cheque</title>
+      <style>
+      @page {
+        size: 792px 612px; /* Width x Height - matching the cheque dimensions */
+        margin: 0;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+        width: 792px;
+        height: 612px;
+      }
+      .print-container {
+        position: relative;
+        width: 792px;
+        height: 612px;
+        margin: 0;
+        background-image: url('${getBankImage()}');
+        background-size: cover;
+        background-repeat: no-repeat;
+        page-break-after: always;
+      }
+      .date-field {
+        position: absolute;
+        top: 56px;
+        left: 620px;
+        letter-spacing: 4.5px;
+        z-index: 20;
+        font-weight: 600;
+        font-size: 1.25rem;
+        text-transform: uppercase;
+      }
+      .name-field {
+        position: absolute;
+        top: 130px;
+        left: 100px;
+        z-index: 20;
+        font-weight: 800;
+        font-size: 1.25rem;
+        text-transform: uppercase;
+      }
+      .bank-field-1 {
+        position: absolute;
+        top: 200px;
+        left: 150px;
+        z-index: 20;
+        font-weight: 800;
+        font-size: 1.25rem;
+        text-transform: uppercase;
+      }
+      .bank-field-2 {
+        position: absolute;
+        top: 257px;
+        left: 650px;
+        z-index: 20;
+        font-weight: 800;
+        font-size: 1.25rem;
+        text-transform: uppercase;
+      }
+      </style>
+      </head>
+      <body>
+      <div class="print-container">
+        <div class="date-field">
+        ${new Date().toLocaleDateString('en-IN', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        }).replace(/\//g, ' ')}
+        </div>
+        <div class="name-field">
+        ${printedName}
+        </div>
+        <div class="bank-field-1">
+        ${amount.inWords}
+        </div>
+        <div class="bank-field-2">
+        ${amount.formatted}
+        </div>
+      </div>
+      </body>
       </html>
     `);
 
@@ -129,7 +228,7 @@ const Printcheque = () => {
           <div className="relative">
             <input
               type="text"
-              placeholder="Enter Custom Name"
+              placeholder="Bearer Name"
               value={selectedName}
               onChange={handleNameInputChange}
               className="w-full text-gray-800 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-blue-500 font-medium rounded-lg text-sm px-4 py-2 shadow-md border border-gray-300 transition-all"
@@ -169,13 +268,40 @@ const Printcheque = () => {
               ))}
             </select>
           </div>
+          <div className="relative">
+            <input
+              type="number"
+              placeholder="Amount"
+              onChange={(e) => {
+                const numValue = parseFloat(e.target.value);
+                if (!isNaN(numValue)) {
+                  // Format without currency symbol
+                  const formatter = new Intl.NumberFormat('en-IN', {
+                    minimumFractionDigits: 2
+                  });
+                  const formattedAmount = formatter.format(numValue);
+                  
+                  // Convert number to words
+                  const amountInWords = convertNumberToWords(numValue);
+                  
+                  // Set these values in state
+                  setAmount({
+                    value: numValue,
+                    formatted: formattedAmount,
+                    inWords: amountInWords
+                  });
+                }
+              }}
+              className="w-full text-gray-800 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-blue-500 font-medium rounded-lg text-sm px-4 py-2 shadow-md border border-gray-300 transition-all"
+            />
+          </div>
         </div>
       </div>
 
-      <div className="flex flex-col items-center">
+      <div className="flex flex-row items-center gap-4 ml-6 mb-6">
         <button
           onClick={handlePrint}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-52 mb-4"
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-52"
         >
           Preview Cheque
         </button>
@@ -189,34 +315,31 @@ const Printcheque = () => {
       </div>
 
       {/* Image at Bottom */}
-      <div className="relative mt-8 mx-auto" id="img-container">
-        {/* Container that holds both image and text overlays */}
-        <div className="relative">
-          <img
-            src={getBankImage()}
-            alt={`${selectedbank || "Default"} Cheque`}
-            className="rounded-lg shadow-lg h-[612px] w-[792px]"
-            id="image"
-          />
-          {/* Date field */}
-          <div className="absolute top-[56px] right-[28px] tracking-[4.5px] z-20">
-            <p className="font-semibold text-xl uppercase">
-              {new Date().toLocaleDateString('en-IN', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-              }).replace(/\//g, ' ')}
-            </p>
-          </div>
-          <div className="absolute top-[130px] right-[620px] z-20">
-            <p className="font-extrabold text-xl uppercase">{printedName}</p>
-          </div>
-          <div className="absolute top-[200px] right-[610px] z-20">
-            <p className="font-extrabold text-xl uppercase">{Printedbank}</p>
-          </div>
-          <div className="absolute top-[257px] right-[100px] z-20">
-            <p className="font-extrabold text-xl uppercase">{Printedbank}</p>
-          </div>
+      <div className="relative mt-4 mx-auto" id="img-container">
+        <img
+          src={getBankImage()}
+          alt={`${selectedbank || "Default"} Cheque`}
+          className="rounded-lg shadow-lg h-[612px] w-[792px]"
+          id="image"
+        />
+        {/* Date field */}
+        <div className="absolute top-[56px] left-[620px] tracking-[4.5px] z-20">
+          <p className="font-semibold text-xl uppercase">
+            {new Date().toLocaleDateString('en-IN', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric'
+            }).replace(/\//g, ' ')}
+          </p>
+        </div>
+        <div className="absolute top-[130px] left-[100px] z-20">
+          <p className="font-extrabold text-xl uppercase">{printedName}</p>
+        </div>
+        <div className="absolute top-[200px] left-[150px] z-20">
+          <p className="font-extrabold text-xl uppercase">{amount.inWords}</p>
+        </div>
+        <div className="absolute top-[257px] left-[620px] z-20">
+          <p className="font-extrabold text-xl uppercase">{amount.formatted}</p>
         </div>
       </div>
     </div>
