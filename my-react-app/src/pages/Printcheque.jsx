@@ -190,30 +190,33 @@ const Printcheque = () => {
 
       {/* Image at Bottom */}
       <div className="relative mt-8 mx-auto" id="img-container">
-        <img
-          src={getBankImage()}
-          alt={`${selectedbank || "Default"} Cheque`}
-          className="rounded-lg shadow-lg h-[612px] w-[792px]"
-          id="image"
-        />
-        {/* Date field */}
-        <div className="absolute top-[56px] right-[28px] tracking-[4.5px] z-20">
-          <p className="font-semibold text-xl uppercase">
-            {new Date().toLocaleDateString('en-IN', {
-              day: '2-digit',
-              month: '2-digit',
-              year: 'numeric'
-            }).replace(/\//g, ' ')}
-          </p>
-        </div>
-        <div className="absolute top-[245px] right-[620px] z-20">
-          <p className="font-extrabold text-xl uppercase">{printedName}</p>
-        </div>
-        <div className="absolute top-[290px] right-[620px] z-20">
-          <p className="font-extrabold text-xl uppercase">{Printedbank}</p>
-        </div>
-        <div className="absolute top-[335px] right-[620px] z-20">
-          <p className="font-extrabold text-xl uppercase">{Printedbank}</p>
+        {/* Container that holds both image and text overlays */}
+        <div className="relative">
+          <img
+            src={getBankImage()}
+            alt={`${selectedbank || "Default"} Cheque`}
+            className="rounded-lg shadow-lg h-[612px] w-[792px]"
+            id="image"
+          />
+          {/* Date field */}
+          <div className="absolute top-[56px] right-[28px] tracking-[4.5px] z-20">
+            <p className="font-semibold text-xl uppercase">
+              {new Date().toLocaleDateString('en-IN', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+              }).replace(/\//g, ' ')}
+            </p>
+          </div>
+          <div className="absolute top-[130px] right-[620px] z-20">
+            <p className="font-extrabold text-xl uppercase">{printedName}</p>
+          </div>
+          <div className="absolute top-[200px] right-[610px] z-20">
+            <p className="font-extrabold text-xl uppercase">{Printedbank}</p>
+          </div>
+          <div className="absolute top-[257px] right-[100px] z-20">
+            <p className="font-extrabold text-xl uppercase">{Printedbank}</p>
+          </div>
         </div>
       </div>
     </div>
